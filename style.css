@@ -274,3 +274,31 @@ button:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   }
 }
+@media screen and (max-width: 768px) {
+  /* 1. ボタンを大きく、押しやすくする */
+  .delete-btn,
+  .done-card button {
+    padding: 12px 20px; /* タップ範囲を拡大 */
+    font-size: 1rem;
+    min-height: 44px; /* Appleの推奨最小サイズ */
+  }
+
+  /* 2. 入力フォームの各要素に余裕を持たせる */
+  .input-form input,
+  .input-form select,
+  .input-form button {
+    height: 50px;
+    font-size: 16px; /* iOSでズームされないための最小サイズ */
+  }
+
+  /* 3. タスクカード内のボタン配置を調整 */
+  .task-card .card-content div[style*="display:flex"] {
+    flex-direction: column; /* スマホではボタンを縦に並べて押し間違いを防ぐ */
+    gap: 8px;
+  }
+
+  /* 4. スクロールを滑らかにする */
+  .task-list {
+    -webkit-overflow-scrolling: touch;
+  }
+}
