@@ -221,7 +221,7 @@ button:hover {
 .done-toggle-btn {
   position: fixed;
   top: 20px;
-  right: 20px;
+  right: 0px;
   z-index: 100;
 }
 /* スマホ向けの調整（画面幅が768px以下の場合） */
@@ -261,11 +261,48 @@ button:hover {
   }
 
   /* 完了済みドロワーを画面いっぱいに */
-  .done-drawer {
+  /* .done-drawer {
     width: 100%;
     right: -100%;
+    
+  } */
+  /* サイドパネル本体 */
+  .done-drawer {
+    position: fixed;
+    top: 0;
+    /* 修正：-350pxから-110%に変更して、影や枠線も含めて完全に画面外へ */
+    right: -110%;
+    width: 300px;
+    max-width: 85vw; /* スマホで画面からはみ出さないよう制限 */
+    height: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    transition: right 0.3s ease-in-out;
+    padding: 20px;
+    box-sizing: border-box; /* パディングを含めたサイズ計算にする */
   }
 
+  /* パネルが開いた状態 */
+  .done-drawer.open {
+    right: 0;
+  }
+
+  /* 修正：スマホ向けの追加設定 */
+  @media screen and (max-width: 768px) {
+    .done-drawer {
+      width: 280px; /* スマホでの幅を少し抑える */
+      right: -320px; /* 幅 + 影の分を考慮して隠す */
+    }
+
+    /* 画面全体の横揺れ（オーバーフロー）を防止 */
+    body {
+      overflow-x: hidden;
+      position: relative;
+    }
+  }
   /* Doneボタンを少し小さく、押しやすく */
   .done-toggle-btn {
     top: auto;
