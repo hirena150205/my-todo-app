@@ -221,7 +221,7 @@ button:hover {
 .done-toggle-btn {
   position: fixed;
   top: 20px;
-  right: 0px;
+  right: 20px;
   z-index: 100;
 }
 /* スマホ向けの調整（画面幅が768px以下の場合） */
@@ -307,7 +307,7 @@ button:hover {
   .done-toggle-btn {
     top: auto;
     bottom: 20px; /* 右下に配置 */
-    right: 20px;
+    right: 0px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   }
 }
