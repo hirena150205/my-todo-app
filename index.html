@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Matrix To-Do List</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Matrix To-Do Task Board</h1>
+      <div class="input-form">
+        <input type="text" id="taskTitle" placeholder="何をする？" />
+        <input type="date" id="taskDeadline" />
+        <select id="taskImportance">
+          <option value="3">最重要</option>
+          <option value="2">重要</option>
+          <option value="1">通常</option>
+        </select>
+
+        <!-- <select id="taskDeadline">
+          <option value="today">本日</option>
+          <option value="tomorrow">翌日</option>
+          <option value="week">1週間以内</option>
+          <option value="later">1週間以上</option>
+        </select> -->
+
+        <button onclick="addTask()">追加</button>
+      </div>
+
+      <div id="board">
+        <section class="deadline-row" data-deadline="today">
+          <h2>本日</h2>
+          <div class="task-list"></div>
+        </section>
+        <section class="deadline-row" data-deadline="tomorrow">
+          <h2>翌日</h2>
+          <div class="task-list"></div>
+        </section>
+        <section class="deadline-row" data-deadline="week">
+          <h2>1週間以内</h2>
+          <div class="task-list"></div>
+        </section>
+        <section class="deadline-row" data-deadline="later">
+          <h2>1週間以上</h2>
+          <div class="task-list"></div>
+        </section>
+      </div>
+    </div>
+    <button
+      id="openDoneList"
+      class="done-toggle-btn"
+      onclick="toggleDrawer(true)"
+    >
+      Done リストを表示
+    </button>
+
+    <div id="doneDrawer" class="done-drawer">
+      <div class="drawer-header">
+        <h3>完了済みタスク</h3>
+        <button onclick="toggleDrawer(false)">×</button>
+      </div>
+      <div id="doneTaskList" class="done-task-list"></div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="toggleDrawer(false)"></div>
+    <script src="script.js"></script>
+  </body>
+</html>
