@@ -58,6 +58,7 @@ button {
   padding: 10px 15px;
   border-radius: 8px;
   outline: none;
+  color-scheme: dark;
 }
 
 button {
@@ -119,8 +120,8 @@ button:hover {
   transform: translateY(-5px);
 }
 
-/* 重要度ラベルのドット表現 */
-.task-card span {
+/* 重要度ラベルのドット表現（カテゴリタグを除外） */
+.task-card span:not(.category-tag) {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -129,7 +130,7 @@ button:hover {
   margin-bottom: 12px;
 }
 
-.task-card.high span::before {
+.task-card.high span:not(.category-tag)::before {
   content: "";
   width: 8px;
   height: 8px;
@@ -137,7 +138,7 @@ button:hover {
   border-radius: 50%;
   box-shadow: 0 0 8px var(--high);
 }
-.task-card.medium span::before {
+.task-card.medium span:not(.category-tag)::before {
   content: "";
   width: 8px;
   height: 8px;
@@ -145,7 +146,7 @@ button:hover {
   border-radius: 50%;
   box-shadow: 0 0 8px var(--medium);
 }
-.task-card.low span::before {
+.task-card.low span:not(.category-tag)::before {
   content: "";
   width: 8px;
   height: 8px;
@@ -224,10 +225,89 @@ button:hover {
   right: 20px;
   z-index: 100;
 }
+/* カテゴリタグの汎用スタイル（動的追加対応） */
+.category-tag {
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0; /* 少し明るい白グレー */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* -----------------------------------
+ * カテゴリフィルターとDoneリストの追加スタイル
+ * ----------------------------------- */
+
+/* フィルターボタン群 */
+.category-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  /* スクロールバーを見えにくくする */
+  scrollbar-width: none;
+}
+.category-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-sub);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.filter-btn.active {
+  background: rgba(168, 85, 247, 0.2);
+  color: #fff;
+  border-color: #a855f7;
+}
+
+/* 完了リストの日付見出し */
+.done-date-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin: 20px 0 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 6px;
+}
+.done-date-header button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.7;
+}
+.done-date-header button:hover {
+  opacity: 1;
+}
+
+/* レスポンシブ */
 /* スマホ向けの調整（画面幅が768px以下の場合） */
 @media screen and (max-width: 768px) {
   body {
     padding: 10px;
+    overflow-x: hidden;
+    position: relative;
   }
 
   /* 入力フォームを縦並びに */
@@ -260,58 +340,24 @@ button:hover {
     box-sizing: border-box;
   }
 
-  /* 完了済みドロワーを画面いっぱいに */
-  /* .done-drawer {
-    width: 100%;
-    right: -100%;
-    
-  } */
-  /* サイドパネル本体 */
+  /* サイドパネル本体（スマホ用） */
   .done-drawer {
-    position: fixed;
-    top: 0;
-    /* 修正：-350pxから-110%に変更して、影や枠線も含めて完全に画面外へ */
-    right: -110%;
-    width: 300px;
-    max-width: 85vw; /* スマホで画面からはみ出さないよう制限 */
-    height: 100%;
-    background: var(--card-bg);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    transition: right 0.3s ease-in-out;
-    padding: 20px;
-    box-sizing: border-box; /* パディングを含めたサイズ計算にする */
+    width: 280px;
+    right: -320px; /* 完全に画面外へ隠す */
   }
 
-  /* パネルが開いた状態 */
   .done-drawer.open {
     right: 0;
   }
 
-  /* 修正：スマホ向けの追加設定 */
-  @media screen and (max-width: 768px) {
-    .done-drawer {
-      width: 280px; /* スマホでの幅を少し抑える */
-      right: -320px; /* 幅 + 影の分を考慮して隠す */
-    }
-
-    /* 画面全体の横揺れ（オーバーフロー）を防止 */
-    body {
-      overflow-x: hidden;
-      position: relative;
-    }
-  }
   /* Doneボタンを少し小さく、押しやすく */
   .done-toggle-btn {
     top: auto;
     bottom: 20px; /* 右下に配置 */
-    right: 0px;
+    right: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   }
-}
-@media screen and (max-width: 768px) {
+
   /* 1. ボタンを大きく、押しやすくする */
   .delete-btn,
   .done-card button {
@@ -338,4 +384,55 @@ button:hover {
   .task-list {
     -webkit-overflow-scrolling: touch;
   }
+}
+/* -----------------------------------
+ * タスク移動時の弾力スライドアニメーション
+ * ----------------------------------- */
+
+/* ① 表示される時のぽよんとしたスライドイン */
+@keyframes elasticSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px) scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ② 消える時・移動する時の弾力スライドアウト */
+@keyframes elasticSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  30% {
+    /* 少し逆方向に引いて「タメ」を作る */
+    opacity: 1;
+    transform: translateX(-15px) scale(1.05);
+  }
+  100% {
+    /* 右へピューンと飛んでいく */
+    opacity: 0;
+    transform: translateX(150px) scale(0.8);
+  }
+}
+
+/* カードが表示される時の基本アニメーション */
+.task-card,
+.done-card {
+  animation: elasticSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+    forwards;
+}
+
+/* 移動・削除ボタンを押した時にJavaScriptで付与するクラス */
+.task-card.removing,
+.done-card.removing {
+  animation: elasticSlideOut 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards !important;
+  pointer-events: none; /* アニメーション中の連打によるバグを防止 */
 }

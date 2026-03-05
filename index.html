@@ -25,15 +25,13 @@
           <option value="1">通常</option>
         </select>
 
-        <!-- <select id="taskDeadline">
-          <option value="today">本日</option>
-          <option value="tomorrow">翌日</option>
-          <option value="week">1週間以内</option>
-          <option value="later">1週間以上</option>
-        </select> -->
-
+        <div style="display: flex; gap: 8px; flex-grow: 1; min-width: 150px">
+          <select id="taskCategory"></select>
+        </div>
         <button onclick="addTask()">追加</button>
       </div>
+
+      <div id="categoryFilter" class="category-filter"></div>
 
       <div id="board">
         <section class="deadline-row" data-deadline="today">
@@ -63,14 +61,102 @@
     </button>
 
     <div id="doneDrawer" class="done-drawer">
-      <div class="drawer-header">
-        <h3>完了済みタスク</h3>
-        <button onclick="toggleDrawer(false)">×</button>
+      <div
+        class="drawer-header"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        "
+      >
+        <h3 style="margin: 0">完了済み</h3>
+        <div>
+          <button
+            onclick="clearAllDoneTasks()"
+            style="
+              background: none;
+              border: none;
+              color: #ef4444;
+              font-size: 0.8rem;
+              cursor: pointer;
+              margin-right: 10px;
+            "
+          >
+            全件消去
+          </button>
+          <button
+            onclick="toggleDrawer(false)"
+            style="
+              background: none;
+              border: none;
+              color: white;
+              font-size: 1.5rem;
+              padding: 0;
+              cursor: pointer;
+            "
+          >
+            ×
+          </button>
+        </div>
       </div>
       <div id="doneTaskList" class="done-task-list"></div>
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleDrawer(false)"></div>
+    <div
+      id="overlay"
+      class="overlay"
+      onclick="
+        toggleDrawer(false);
+        toggleCategoryDrawer(false);
+      "
+    ></div>
+
+    <div id="categoryDrawer" class="done-drawer">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        "
+      >
+        <h3 style="margin: 0">カテゴリ管理</h3>
+        <button
+          onclick="toggleCategoryDrawer(false)"
+          style="
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            padding: 0;
+            color: white;
+          "
+        >
+          ×
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 20px">
+        <input
+          type="text"
+          id="newCategoryInput"
+          placeholder="新しいカテゴリ"
+          style="flex-grow: 1; height: 40px"
+        />
+        <button
+          onclick="addCategoryFromDrawer()"
+          style="padding: 0 15px; height: 40px"
+        >
+          追加
+        </button>
+      </div>
+
+      <div
+        id="categoryManageList"
+        style="display: flex; flex-direction: column; gap: 8px"
+      ></div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
