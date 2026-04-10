@@ -40,6 +40,7 @@ h1 {
 /* 入力フォームのモダン化 */
 .input-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   background: var(--card-bg);
   padding: 20px;

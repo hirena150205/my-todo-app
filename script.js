@@ -29,6 +29,22 @@ function getTodayString() {
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+// 繰り返しタスクの次の期限を計算する関数
+function getNextDeadline(dateStr, recurrence) {
+  const date = new Date(dateStr);
+  if (recurrence === "daily") {
+    date.setDate(date.getDate() + 1);
+  } else if (recurrence === "weekly") {
+    date.setDate(date.getDate() + 7);
+  } else if (recurrence === "monthly") {
+    date.setMonth(date.getMonth() + 1);
+  }
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+// 「その他」を常に末尾に配置する関数
 function ensureSonotaAtEnd() {
   const index = categories.indexOf("その他");
   if (index !== -1) {
@@ -130,6 +146,16 @@ function render() {
       card.className = `task-card ${getImportanceClass(task.importance)}`;
       card.style.background = getCategoryColor(taskCat);
 
+      // 繰り返し設定のラベルを追加
+      const recurLabel =
+        task.recurrence === "daily"
+          ? "🔄 毎日"
+          : task.recurrence === "weekly"
+            ? "🔄 毎週"
+            : task.recurrence === "monthly"
+              ? "🔄 毎月"
+              : "🔄 設定なし";
+
       // 日付の表示を formatDate() と薄い色で洗練
       card.innerHTML = `
         <div class="card-content">
@@ -137,6 +163,7 @@ function render() {
               <span style="margin-bottom:0; display:flex; align-items:center;">
                 ${getImportanceLabel(task.importance)} 
                 <span style="color:rgba(255,255,255,0.6); font-weight:normal; font-size:0.85em; margin-left:6px;">${formatDate(task.deadlineDate)}</span>
+                <span style="color:#a855f7; margin-left:4px;">${recurLabel}</span>
               </span>
               <span class="category-tag">${taskCat}</span>
             </div>
@@ -211,6 +238,8 @@ function addTask() {
   const deadlineDate = document.getElementById("taskDeadline").value;
   const importance = parseInt(document.getElementById("taskImportance").value);
   const category = document.getElementById("taskCategory").value;
+  // ▼ 【修正】この1行を追加して、プルダウンの値を取得します ▼
+  const recurrence = document.getElementById("taskRecurrence").value;
 
   if (!title || !deadlineDate) {
     alert("タスク名と期限を入力してください");
@@ -223,38 +252,77 @@ function addTask() {
     deadlineDate: deadlineDate,
     category: category,
     isDone: false,
+    recurrence: recurrence,
   });
 
   render();
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDeadline").value = "";
+  document.getElementById("taskRecurrence").value = "none";
 }
 
-// 完了切り替え機能（アニメーション対応）
+// 完了切り替え機能（アニメーション・繰り返し対応）
 function toggleDone(index, event) {
   if (event) {
-    // クリックされたボタンの親であるカード要素を取得
     const card =
       event.target.closest(".task-card") || event.target.closest(".done-card");
     if (card) {
-      card.classList.add("removing"); // スライドアウトアニメーションを開始
+      card.classList.add("removing");
 
-      // アニメーションが終わるまで（350ミリ秒）待ってからデータを更新
       setTimeout(() => {
-        tasks[index].isDone = !tasks[index].isDone;
-        // 完了日時の管理
+        tasks[index].isDone = !tasks[index].isDone; // 状態を反転
+
         if (tasks[index].isDone) {
           tasks[index].completedDate = getTodayString();
+
+          // 繰り返し設定がある場合、次のタスクを生成
+          if (tasks[index].recurrence && tasks[index].recurrence !== "none") {
+            const nextDate = getNextDeadline(
+              tasks[index].deadlineDate,
+              tasks[index].recurrence,
+            );
+            tasks.push({
+              title: tasks[index].title,
+              importance: tasks[index].importance,
+              deadlineDate: nextDate,
+              category: tasks[index].category,
+              recurrence: tasks[index].recurrence, // 次のタスクに引き継ぐ
+              isDone: false,
+            });
+            // 元のタスクからは繰り返し設定を消す（戻した時のバグ防止）
+            tasks[index].recurrence = "none";
+          }
         } else {
           delete tasks[index].completedDate;
         }
         render();
       }, 350);
-      return; // ここで処理を一旦終了
+      return;
     }
   }
-  // eventが取得できなかった場合の予備処理
+
+  // eventが取得できなかった場合の予備処理（アニメーションなし）
   tasks[index].isDone = !tasks[index].isDone;
+  if (tasks[index].isDone) {
+    tasks[index].completedDate = getTodayString();
+    if (tasks[index].recurrence && tasks[index].recurrence !== "none") {
+      const nextDate = getNextDeadline(
+        tasks[index].deadlineDate,
+        tasks[index].recurrence,
+      );
+      tasks.push({
+        title: tasks[index].title,
+        importance: tasks[index].importance,
+        deadlineDate: nextDate,
+        category: tasks[index].category,
+        recurrence: tasks[index].recurrence,
+        isDone: false,
+      });
+      tasks[index].recurrence = "none";
+    }
+  } else {
+    delete tasks[index].completedDate;
+  }
   render();
 }
 
@@ -338,6 +406,7 @@ function editTask(index) {
   document.getElementById("taskDeadline").value = task.deadlineDate;
   document.getElementById("taskImportance").value = task.importance;
   document.getElementById("taskCategory").value = task.category || "その他";
+  document.getElementById("taskRecurrence").value = task.recurrence || "none";
 
   // 編集中のインデックスを記憶
   editingIndex = index;
@@ -357,6 +426,7 @@ function updateTask() {
   const deadlineDate = document.getElementById("taskDeadline").value;
   const importance = parseInt(document.getElementById("taskImportance").value);
   const category = document.getElementById("taskCategory").value;
+  const recurrence = document.getElementById("taskRecurrence").value;
 
   if (!title || !deadlineDate) {
     alert("タスク名と期限を入力してください");
@@ -368,6 +438,7 @@ function updateTask() {
   tasks[editingIndex].deadlineDate = deadlineDate;
   tasks[editingIndex].importance = importance;
   tasks[editingIndex].category = category;
+  tasks[editingIndex].recurrence = recurrence;
 
   // 状態をリセットして「追加」モードに戻す
   editingIndex = null;
@@ -378,7 +449,7 @@ function updateTask() {
   // フォームを空にする
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDeadline").value = "";
-
+  document.getElementById("taskRecurrence").value = "none";
   // 画面を再描画
   render();
 }
